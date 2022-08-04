@@ -1,19 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
-import 'package:outlook/appointmenthistory.dart';
+import 'package:outlook/controller/buttoncontroller.dart';
 import 'package:outlook/controller/datecontroller.dart';
 import 'package:intl/intl.dart';
+import 'package:outlook/screens/web_checkout.dart';
 import '../components/booking_details.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import '../constants.dart';
-import '../controller/buttoncontroller.dart';
 import '../controller/datepickercontroller.dart';
-import 'web_checkout.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 
 class BookingScreen extends StatefulWidget {
   final data;
@@ -27,7 +26,6 @@ bool flag = false;
 DateTime? to;
 DateTime? from;
 List<String> finaltime = [];
-Map<String, dynamic>? paymentIntentData;
 Position? currentLocation;
 
 class _BookingScreenState extends State<BookingScreen> {
@@ -63,14 +61,117 @@ class _BookingScreenState extends State<BookingScreen> {
       String datee = dateFormat.format(tempDate);
       finaltime.add(datee);
     }
-    setState(() {
-      selectedTime = finaltime[0];
-    });
   }
+
+  Map<String, dynamic>? paymentIntentData;
 
   String? selectedTime;
   String date = "";
   var schedule;
+
+  Future<void> makePayment() async {
+    try {
+      paymentIntentData = await Get.put(ButtonController())
+          .createPaymentIntent('50', 'USD'); //json.decode(response.body);
+      // print('Response body==>${response.body.toString()}');
+      if (kIsWeb) {
+        if (flag == false) {
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Please select available day')));
+        } else {
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => WebViewExample(
+                    selectedTime: selectedTime,
+                    date: date,
+                    instanceUser: FirebaseAuth.instance.currentUser!.uid,
+                    name: widget.data['name'],
+                    docid: widget.docid,
+                  )));
+        }
+
+        print("web");
+      } else {
+        if (flag == false) {
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Please select available day')));
+        } else {
+          await Stripe.instance
+              .initPaymentSheet(
+                  paymentSheetParameters: SetupPaymentSheetParameters(
+                      paymentIntentClientSecret:
+                          paymentIntentData!['client_secret'],
+                      style: ThemeMode.light,
+                      merchantDisplayName: 'Sagheer Ahmed'))
+              .then((value) {});
+          displayPaymentSheet();
+        }
+      }
+
+      ///now finally display payment sheeet
+
+    } catch (e, s) {
+      print('exception:$e$s');
+    }
+  }
+
+  displayWeb(BuildContext context) {}
+
+  displayPaymentSheet() async {
+    try {
+      await Stripe.instance
+          .presentPaymentSheet(
+              parameters: PresentPaymentSheetParameters(
+        clientSecret: paymentIntentData!['client_secret'],
+        confirmPayment: true,
+      ))
+          .then((newValue) async {
+        print('payment intent' + paymentIntentData!['id'].toString());
+        print(
+            'payment intent' + paymentIntentData!['client_secret'].toString());
+        print('payment intent' + paymentIntentData!['amount'].toString());
+        print('payment intent' + paymentIntentData.toString());
+
+        await FirebaseFirestore.instance.collection("appointments").doc().set({
+          "docname": widget.data['name'],
+          "docid": widget.docid,
+          "patientid": FirebaseAuth.instance.currentUser!.uid,
+          "time": selectedTime,
+          "date": date,
+          "status": 'pending'
+        }).then((_) {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Appointment Booked Successfully!')));
+        });
+        //orderPlaceApi(paymentIntentData!['id'].toString());
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("paid successfully"),
+          backgroundColor: Colors.black12,
+        ));
+
+        paymentIntentData = null;
+      }).onError((error, stackTrace) {
+        print('Exception/DISPLAYPAYMENTSHEET==> $error $stackTrace');
+      });
+    } on StripeException catch (e) {
+      print('Exception/DISPLAYPAYMENTSHEET==> $e');
+      showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+                content: Text("Cancelled "),
+              ));
+    } catch (e) {
+      print('$e');
+    }
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    flag = false;
+  }
+
   @override
   Widget build(BuildContext context) {
     DateTime selectedDate = DateTime.now();
@@ -230,6 +331,7 @@ class _BookingScreenState extends State<BookingScreen> {
                         DateTime date = DateFormat.jm().parse(selectedTime!);
                         print(date);
                         double cost = 349;
+                        double drivetime = 0;
                         calculateCost().then((value) {
                           print(value);
                           if (date.hour > 22 && date.hour < 1) {
@@ -243,7 +345,9 @@ class _BookingScreenState extends State<BookingScreen> {
                               cost = cost + 100;
                             });
                           }
-                          double drivetime = (value / 0.58);
+                          setState(() {
+                            drivetime = (value / 0.58);
+                          });
                           if (drivetime > 16 && drivetime < 30) {
                             setState(() {
                               charge1 = 50;
@@ -271,9 +375,6 @@ class _BookingScreenState extends State<BookingScreen> {
                               builder: (context) => showDetails(cost.toString(),
                                   charge1.toString(), charge2.toString()));
                         });
-
-                        // await makePayment();
-
                         // if(kIsWeb){
                         //   Navigator.of(context).push(
                         //       MaterialPageRoute(
@@ -305,27 +406,6 @@ class _BookingScreenState extends State<BookingScreen> {
                         //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                         //         content:
                         //         Text('Appointment Booked Successfully!')));
-                        //   });
-                        // }
-                        // if (flag == false) {
-                        //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        //       content: Text('Please select available day')));
-                        // } else {
-                        //   FirebaseFirestore.instance
-                        //       .collection("appointments")
-                        //       .doc()
-                        //       .set({
-                        //     "docname": widget.data['name'],
-                        //     "docid": widget.docid,
-                        //     "patientid": FirebaseAuth.instance.currentUser!.uid,
-                        //     "time": selectedTime!,
-                        //     "date": date,
-                        //     "status": 'pending'
-                        //   }).then((_) {
-                        //     Navigator.pop(context);
-                        //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        //         content:
-                        //             Text('Appointment Booked Successfully!')));
                         //   });
                         // }
                       },
@@ -364,124 +444,6 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   bool dateflag = false;
-  displayPaymentSheet() async {
-    try {
-      await Stripe.instance
-          .presentPaymentSheet(
-              parameters: PresentPaymentSheetParameters(
-        clientSecret: paymentIntentData!['client_secret'],
-        confirmPayment: true,
-      ))
-          .then((newValue) async {
-        print('payment intent' + paymentIntentData!['id'].toString());
-        print(
-            'payment intent' + paymentIntentData!['client_secret'].toString());
-        print('payment intent' + paymentIntentData!['amount'].toString());
-        print('payment intent' + paymentIntentData.toString());
-
-        await FirebaseFirestore.instance.collection("appointments").doc().set({
-          "docname": widget.data['name'],
-          "docid": widget.docid,
-          "patientid": FirebaseAuth.instance.currentUser!.uid,
-          "time": selectedTime!,
-          "date": date,
-          "status": 'pending'
-        }).then((_) {
-          Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Appointment Booked Successfully!')));
-        });
-        //orderPlaceApi(paymentIntentData!['id'].toString());
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("paid successfully"),
-          backgroundColor: Colors.black12,
-        ));
-
-        paymentIntentData = null;
-      }).onError((error, stackTrace) {
-        print('Exception/DISPLAYPAYMENTSHEET==> $error $stackTrace');
-      });
-    } on StripeException catch (e) {
-      print('Exception/DISPLAYPAYMENTSHEET==> $e');
-      showDialog(
-          context: context,
-          builder: (_) => AlertDialog(
-                content: Text("Cancelled "),
-              ));
-    } catch (e) {
-      print('$e');
-    }
-  }
-
-  Future<void> makePayment() async {
-    try {
-      paymentIntentData = await Get.put(ButtonController())
-          .createPaymentIntent('50', 'USD'); //json.decode(response.body);
-      // print('Response body==>${response.body.toString()}');
-      if (kIsWeb) {
-        if (flag == false) {
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Please select available day')));
-        } else {
-          // var body={
-          //   'payment_method_types': ['card'],
-          //   'line_items': [
-          //     {
-          //       'price': {
-          //         'currency': 'usd',
-          //         'product_data': {
-          //           'name': 'T-shirt',
-          //         },
-          //         'unit_amount': 2000,
-          //       },           'quantity': 1,
-          //     }
-          //   ],
-          //   'mode': 'payment',
-          //   'success_url': 'https://localhost:8080/#/success',
-          //   'cancel_url': 'https://localhost:8080/#/cancel',
-          // };
-          //
-          // await Stripe.instance.createPaymentMethod(PaymentMethodParams.card(paymentMethodData: PaymentMethodData(
-          //   billingDetails: paymentIntentData!['amount'],shippingDetails: paymentIntentData!['amount'],
-          // ) ));
-          // // displayPaymentSheet();
-          // displayWeb(body);
-
-          Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => WebStripePay(
-                    selectedTime: selectedTime!,
-                    date: date,
-                    instanceUser: FirebaseAuth.instance.currentUser!.uid,
-                    name: widget.data['name'],
-                    docid: widget.docid,
-                  )));
-        }
-
-        print("web");
-      } else {
-        if (flag == false) {
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Please select available day')));
-        } else {
-          await Stripe.instance
-              .initPaymentSheet(
-                  paymentSheetParameters: SetupPaymentSheetParameters(
-                      paymentIntentClientSecret:
-                          paymentIntentData!['client_secret'],
-                      style: ThemeMode.light,
-                      merchantDisplayName: 'Sagheer Ahmed'))
-              .then((value) {});
-          displayPaymentSheet();
-        }
-      }
-
-      ///now finally display payment sheeet
-
-    } catch (e, s) {
-      print('exception:$e$s');
-    }
-  }
-
   Future calculateCost() async {
     double distInKm = 0;
     await FirebaseFirestore.instance
@@ -583,8 +545,16 @@ class _BookingScreenState extends State<BookingScreen> {
           ],
         ),
         actions: [
-          TextButton(onPressed: () {}, child: Text('Cancel')),
-          TextButton(onPressed: () {}, child: Text('Ok'))
+          TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Cancel')),
+          TextButton(
+              onPressed: () async {
+                await makePayment();
+              },
+              child: Text('Ok'))
         ],
       ),
     );

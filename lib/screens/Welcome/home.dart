@@ -84,8 +84,10 @@ class _HomePageState extends State<HomePage>
             children: [
               /// Tab Bar
               Container(
-                margin:
-                    EdgeInsets.only(top: Responsive.isMobile(context) ? 20 : 0),
+                margin: EdgeInsets.only(
+                    top: Responsive.isMobile(context)
+                        ? screenHeight! * 0.05
+                        : 0),
                 height: screenHeight! * 0.05,
                 child: CustomTabBar(controller: tabController!, tabs: [
                   Tab(
@@ -98,7 +100,10 @@ class _HomePageState extends State<HomePage>
                     child: Text('About Us',
                         style: TextStyle(fontSize: 13, color: kTitleTextColor)),
                   )),
-                  Tab(child: FittedBox(child: dropDown())),
+                  Tab(
+                      child: FittedBox(
+                    child: dropDown(),
+                  )),
                   Tab(
                       child: FittedBox(
                     child: Text('Cost',
@@ -173,6 +178,8 @@ class _HomePageState extends State<HomePage>
                       ),
                     ),
                     Container(
+                      height: MediaQuery.of(context).size.height * 0.1,
+                      width: MediaQuery.of(context).size.width * 0.3,
                       child: dropDown(),
                     ),
                     Container(
@@ -213,63 +220,58 @@ class _HomePageState extends State<HomePage>
   int? index;
   Widget dropDown() {
     return StreamBuilder<QuerySnapshot>(
-        stream: doctorStream,
-        builder: (context, snapshot) {
-          for (var i = 0; i < snapshot.data!.docs.length; i++) {
-            if (names.length == 0) {
-              names.add(snapshot.data!.docs[i]['name']);
-              docid.add(snapshot.data!.docs[i].id);
-            }
+      stream: doctorStream,
+      builder: (context, snapshot) {
+        for (var i = 0; i < snapshot.data!.docs.length; i++) {
+          if (names.length == 0) {
+            names.add(snapshot.data!.docs[i]['name']);
+            docid.add(snapshot.data!.docs[i].id);
           }
-          if (snapshot.hasError) {
-            return Center(
-              child: Text('Oops! An error has occured'),
-            );
-          }
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.data!.size == 0) {
-            return Center(
-                child: Text('No available Doctors or No internet connection'));
-          }
-          return names.length == 0
-              ? Text('waiting for data')
-              : DropdownButton<String>(
-                  value: index == null ? null : names[index!],
-                  hint: selectedProviders == null
-                      ? Text('Providers',
-                          style:
-                              TextStyle(fontSize: 13, color: kTitleTextColor))
-                      : Text(
-                          selectedProviders!,
-                          style: TextStyle(
-                            color: kTextColor,
-                          ),
-                        ),
-                  style: TextStyle(color: kTitleTextColor, fontSize: 13),
-                  items: names.map(
-                    (val) {
-                      return DropdownMenuItem<String>(
-                        value: val,
-                        child: Text(val),
-                      );
-                    },
-                  ).toList(),
-                  onChanged: (val) {
-                    setState(
-                      () {
-                        selectedProviders = val!;
-                        index = names.indexOf(val);
-                        print(docid[index!]);
-                      },
+        }
+        if (snapshot.hasError) {
+          return Center(
+            child: Text('Oops! An error has occured'),
+          );
+        }
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.data!.size == 0) {
+          return Center(
+              child: Text('No available Doctors or No internet connection'));
+        }
+        return names.length == 0
+            ? Text('waiting for data')
+            : PopupMenuButton<String>(
+                itemBuilder: (context) {
+                  return names.map((str) {
+                    return PopupMenuItem(
+                      value: str,
+                      child: Text(str),
                     );
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => DoctorProfile(
-                              docid: docid[index!],
-                              role: null,
-                            )));
-                  });
-        });
+                  }).toList();
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text('Providers',
+                        style: TextStyle(fontSize: 13, color: kTitleTextColor)),
+                  ],
+                ),
+                onSelected: (v) {
+                  setState(
+                    () {
+                      index = names.indexOf(v);
+                      print(docid[index!]);
+                    },
+                  );
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => DoctorProfile(
+                            docid: docid[index!],
+                            role: null,
+                          )));
+                });
+      },
+    );
   }
 }

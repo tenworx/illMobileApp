@@ -41,17 +41,38 @@ class LoginAndSignupBtn extends StatelessWidget {
               context,
               MaterialPageRoute(
                 builder: (context) {
-                  return Login(role: 'admin');
+                  return SignUp(role: 'user');
                 },
               ),
             );
           },
           style: ElevatedButton.styleFrom(primary: kBgLightColor, elevation: 0),
           child: Text(
-            "Login as Admin".toUpperCase(),
+            "Signup As user".toUpperCase(),
             style: TextStyle(color: Colors.black),
           ),
         ),
+        SizedBox(
+          height: kDefaultPadding,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('Are you admin?'),
+            TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return Login(role: 'admin');
+                      },
+                    ),
+                  );
+                },
+                child: Text('Click here to login')),
+          ],
+        )
       ],
     );
   }

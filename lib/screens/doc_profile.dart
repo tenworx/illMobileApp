@@ -3,11 +3,9 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:outlook/models/Email.dart';
 import 'package:outlook/screens/docappointmenthistory.dart';
 import 'package:outlook/screens/doctor_details.dart';
 import 'package:outlook/screens/editdoc.dart';
-import 'package:outlook/testbooking.dart';
 import '../../constants.dart';
 
 class DoctorProfile extends StatefulWidget {
@@ -64,7 +62,12 @@ class _DoctorProfileState extends State<DoctorProfile> {
               color: Colors.white,
               child: SafeArea(
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+                    SizedBox(
+                      height: kDefaultPadding * 2,
+                    ),
                     Container(
                         height: MediaQuery.of(context).size.height * 0.4,
                         width: MediaQuery.of(context).size.width * 0.8,
@@ -79,14 +82,8 @@ class _DoctorProfileState extends State<DoctorProfile> {
                         padding: EdgeInsets.all(kDefaultPadding),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            CircleAvatar(
-                              maxRadius: 24,
-                              backgroundColor: Colors.transparent,
-                              backgroundImage: AssetImage(
-                                data['image'],
-                              ),
-                            ),
                             SizedBox(width: kDefaultPadding),
                             Expanded(
                               child: Column(
@@ -129,137 +126,6 @@ class _DoctorProfileState extends State<DoctorProfile> {
                                             ),
                                           ),
                                           SizedBox(height: kDefaultPadding),
-                                          widget.role == null
-                                              ? SizedBox()
-                                              : widget.role == 'user'
-                                                  ? Container(
-                                                      height: 50,
-                                                      width: 200,
-                                                      margin: EdgeInsets.only(
-                                                          bottom: MediaQuery.of(
-                                                                      context)
-                                                                  .size
-                                                                  .height *
-                                                              0.1),
-                                                      child: ElevatedButton(
-                                                          style: ElevatedButton
-                                                              .styleFrom(
-                                                                  primary:
-                                                                      kPrimaryColor),
-                                                          onPressed: () {
-                                                            Navigator.of(context).push(
-                                                                MaterialPageRoute(
-                                                                    builder:
-                                                                        (context) =>
-                                                                            BookingScreen(
-                                                                              data: data,
-                                                                              docid: widget.docid,
-                                                                            )));
-                                                          },
-                                                          child: Text(
-                                                              'Book Appointment')))
-                                                  : Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceEvenly,
-                                                      children: [
-                                                        Container(
-                                                          height: 50,
-                                                          width: 200,
-                                                          margin: EdgeInsets.only(
-                                                              bottom: MediaQuery.of(
-                                                                          context)
-                                                                      .size
-                                                                      .height *
-                                                                  0.1),
-                                                          child: ElevatedButton(
-                                                              style: ElevatedButton
-                                                                  .styleFrom(
-                                                                      primary:
-                                                                          kPrimaryColor),
-                                                              onPressed: () {
-                                                                Navigator.of(
-                                                                        context)
-                                                                    .push(MaterialPageRoute(
-                                                                        builder: (context) => DocAppointmentHistory(
-                                                                              docid: widget.docid,
-                                                                              role: widget.role,
-                                                                            )));
-                                                              },
-                                                              child: Text(
-                                                                  'View Appointments')),
-                                                        ),
-                                                        Container(
-                                                          height: 50,
-                                                          width: 200,
-                                                          margin: EdgeInsets.only(
-                                                              bottom: MediaQuery.of(
-                                                                          context)
-                                                                      .size
-                                                                      .height *
-                                                                  0.1),
-                                                          child: ElevatedButton(
-                                                              style: ElevatedButton
-                                                                  .styleFrom(
-                                                                      primary: Colors
-                                                                              .green[
-                                                                          400]),
-                                                              onPressed: () {
-                                                                Navigator.of(context).push(MaterialPageRoute(
-                                                                    builder: (context) => EditDoctor(
-                                                                        docid: widget
-                                                                            .docid,
-                                                                        docdata:
-                                                                            data)));
-                                                              },
-                                                              child: Text(
-                                                                  'Edit Doctor')),
-                                                        ),
-                                                        Container(
-                                                          height: 50,
-                                                          width: 200,
-                                                          margin: EdgeInsets.only(
-                                                              bottom: MediaQuery.of(
-                                                                          context)
-                                                                      .size
-                                                                      .height *
-                                                                  0.1),
-                                                          child: ElevatedButton(
-                                                              style: ElevatedButton
-                                                                  .styleFrom(
-                                                                      primary: Colors
-                                                                              .red[
-                                                                          400]),
-                                                              onPressed: () {
-                                                                delete()
-                                                                    .then((_) {
-                                                                  Fluttertoast.showToast(
-                                                                      msg:
-                                                                          "Deleted Doctor's record Successfully",
-                                                                      toastLength:
-                                                                          Toast
-                                                                              .LENGTH_LONG,
-                                                                      gravity: ToastGravity
-                                                                          .BOTTOM,
-                                                                      timeInSecForIosWeb:
-                                                                          3,
-                                                                      backgroundColor:
-                                                                          kPrimaryColor,
-                                                                      textColor:
-                                                                          Colors
-                                                                              .white,
-                                                                      fontSize:
-                                                                          16.0);
-                                                                  Navigator.of(
-                                                                          context)
-                                                                      .pop();
-                                                                });
-                                                              },
-                                                              child: Text(
-                                                                  'Delete Doctor')),
-                                                        ),
-                                                      ],
-                                                    )
                                         ],
                                       ),
                                     ),
@@ -271,6 +137,101 @@ class _DoctorProfileState extends State<DoctorProfile> {
                         ),
                       ),
                     ),
+                    widget.role == null
+                        ? SizedBox()
+                        : widget.role == 'user'
+                            ? Container(
+                                height: 50,
+                                width: 200,
+                                margin: EdgeInsets.only(
+                                    bottom: MediaQuery.of(context).size.height *
+                                        0.1),
+                                child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                        primary: kPrimaryColor),
+                                    onPressed: () {
+                                      Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  BookingScreen(
+                                                    data: data,
+                                                    docid: widget.docid,
+                                                  )));
+                                    },
+                                    child: Text('Book Appointment')))
+                            : Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Container(
+                                    height: 50,
+                                    width: 200,
+                                    margin: EdgeInsets.only(
+                                        bottom:
+                                            MediaQuery.of(context).size.height *
+                                                0.1),
+                                    child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                            primary: kPrimaryColor),
+                                        onPressed: () {
+                                          Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      DocAppointmentHistory(
+                                                        docid: widget.docid,
+                                                        role: widget.role,
+                                                      )));
+                                        },
+                                        child: Text('View Appointments')),
+                                  ),
+                                  Container(
+                                    height: 50,
+                                    width: 200,
+                                    margin: EdgeInsets.only(
+                                        bottom:
+                                            MediaQuery.of(context).size.height *
+                                                0.1),
+                                    child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                            primary: Colors.green[400]),
+                                        onPressed: () {
+                                          Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      EditDoctor(
+                                                          docid: widget.docid,
+                                                          docdata: data)));
+                                        },
+                                        child: Text('Edit Doctor')),
+                                  ),
+                                  Container(
+                                    height: 50,
+                                    width: 200,
+                                    margin: EdgeInsets.only(
+                                        bottom:
+                                            MediaQuery.of(context).size.height *
+                                                0.1),
+                                    child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                            primary: Colors.red[400]),
+                                        onPressed: () {
+                                          delete().then((_) {
+                                            Fluttertoast.showToast(
+                                                msg:
+                                                    "Deleted Doctor's record Successfully",
+                                                toastLength: Toast.LENGTH_LONG,
+                                                gravity: ToastGravity.BOTTOM,
+                                                timeInSecForIosWeb: 3,
+                                                backgroundColor: kPrimaryColor,
+                                                textColor: Colors.white,
+                                                fontSize: 16.0);
+                                            Navigator.of(context).pop();
+                                          });
+                                        },
+                                        child: Text('Delete Doctor')),
+                                  ),
+                                ],
+                              )
                   ],
                 ),
               ),

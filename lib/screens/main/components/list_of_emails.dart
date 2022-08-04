@@ -71,7 +71,9 @@ class _ListOfEmailsState extends State<ListOfEmails> {
                 ),
               ),
               Text(
-                'Registered Doctor',
+                widget.role == 'user'
+                    ? 'Available Doctors'
+                    : 'Registered Doctors',
                 style: TextStyle(fontSize: 20),
               ),
               Divider(),
