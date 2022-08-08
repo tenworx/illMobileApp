@@ -11,19 +11,21 @@ import '../../../constants.dart';
 import '../../../extensions.dart';
 
 class EmailCard extends StatefulWidget {
-  const EmailCard(
+  EmailCard(
       {Key? key,
       this.isActive = false,
       required this.email,
       required this.press,
       required this.docid,
-      required this.role})
+      required this.role,
+      required this.data})
       : super(key: key);
 
   final bool isActive;
   final Email email;
   final String docid;
   final role;
+  var data;
   final VoidCallback press;
 
   @override
@@ -39,10 +41,12 @@ class _EmailCardState extends State<EmailCard> {
     return InkWell(
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => DoctorProfile(
-                  docid: widget.docid,
-                  role: widget.role,
-                )));
+            builder: (context) => widget.role == 'user'
+                ? BookingScreen(data: widget.data, docid: widget.docid)
+                : DoctorProfile(
+                    docid: widget.docid,
+                    role: widget.role,
+                  )));
       },
       child: Stack(
         children: [
@@ -81,16 +85,16 @@ class _EmailCardState extends State<EmailCard> {
                       "${widget.email.name}",
                       style: TextStyle(
                         fontSize: 16,
-                        fontWeight: FontWeight.w500,
+                        // fontWeight: FontWeight.w500,
                         color: kTextColor,
                       ),
                     ),
-                    Text(
-                      "(experience: ${widget.email.experience})",
-                      style: Theme.of(context).textTheme.bodyText2!.copyWith(
-                            color: kTextColor,
-                          ),
-                    ),
+                    // Text(
+                    //   "(experience: ${widget.email.experience})",
+                    //   style: Theme.of(context).textTheme.bodyText2!.copyWith(
+                    //         color: kTextColor,
+                    //       ),
+                    // ),
                   ],
                 ),
                 SizedBox(height: kDefaultPadding / 2),
@@ -98,14 +102,26 @@ class _EmailCardState extends State<EmailCard> {
                   "${widget.email.shortinfo}",
                   style: TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.w500,
+                    // fontWeight: FontWeight.w500,
                     color: kTextColor,
                   ),
                 ),
-                SizedBox(height: kDefaultPadding / 2),
-                Text(
-                  'Available days: ${widget.email.body.replaceAll(',', ' ')}',
-                  style: TextStyle(fontSize: 14, color: kTextColor),
+                // SizedBox(height: kDefaultPadding / 2),
+                // Text(
+                //   'Available days: ${widget.email.body.replaceAll(',', ' ')}',
+                //   style: TextStyle(fontSize: 14, color: kTextColor),
+                // ),
+                Divider(),
+                Container(
+                  height: 50,
+                  width: MediaQuery.of(context).size.width,
+                  color: kPrimaryColor,
+                  child: Center(
+                    child: Text(
+                      'Book appointment',
+                      style: TextStyle(fontSize: 20, color: Colors.white),
+                    ),
+                  ),
                 ),
               ],
             ),

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:geocode/geocode.dart';
 
 class Database {
   static String? userUid;
@@ -63,6 +64,35 @@ class Database {
       'address': address,
       'contact': cell,
       'role': role
+    });
+  }
+
+  Future postAdminDetailsToFirestore(
+      String? image,
+      String emailtxt,
+      String passtxt,
+      String username,
+      String address,
+      String cell,
+      String role) async {
+    GeoCode geoCode = GeoCode();
+    await _auth.createUserWithEmailAndPassword(
+        email: emailtxt, password: passtxt);
+    FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+    User? user = _auth.currentUser;
+    Coordinates coordinates =
+        await geoCode.forwardGeocoding(address: address).then((value) async {
+      await firebaseFirestore.collection(role).doc(user!.uid).set({
+        'image': image == null ? 'abcd' : image,
+        'username': username,
+        'email': emailtxt,
+        'address': address,
+        'contact': cell,
+        'role': role,
+        'lat': value.latitude,
+        'lng': value.longitude
+      });
+      return value;
     });
   }
 

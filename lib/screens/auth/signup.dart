@@ -207,13 +207,13 @@ class _SignUpState extends State<SignUp> {
                               obscureText: false,
                               decoration: InputDecoration(
                                 border: InputBorder.none,
-                                label: Text('contact'),
+                                label: Text('Phone Number'),
                                 prefixIcon: Icon(
                                   Icons.phone,
                                   color: kTitleTextColor,
                                 ),
                                 focusColor: kPrimaryColor,
-                                hintText: 'Contact',
+                                hintText: 'Phone Number',
                               ),
                               keyboardType: TextInputType.number,
                               inputFormatters: <TextInputFormatter>[
@@ -247,7 +247,7 @@ class _SignUpState extends State<SignUp> {
                         vaildation();
                         widget.role == 'admin'
                             ? database
-                                .postDetailsToFirestore(
+                                .postAdminDetailsToFirestore(
                                     localimage!,
                                     email.text,
                                     password.text,

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:outlook/responsive.dart';
 import 'package:outlook/screens/docappointmenthistory.dart';
 import 'package:outlook/screens/doctor_details.dart';
 import 'package:outlook/screens/editdoc.dart';
@@ -97,7 +98,9 @@ class _DoctorProfileState extends State<DoctorProfile> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              '${data['name']} (proficient in:${data['Proficiency'] == 'Both' ? 'English,Spanish' : data['Proficiency']})',
+                                              widget.role == null
+                                                  ? '${data['name']}'
+                                                  : '${data['name']} (proficient in:${data['Proficiency'] == 'Both' ? 'English,Spanish' : data['Proficiency']})',
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .headline6,
@@ -165,7 +168,10 @@ class _DoctorProfileState extends State<DoctorProfile> {
                                 children: [
                                   Container(
                                     height: 50,
-                                    width: 200,
+                                    width: Responsive.isDesktop(context)
+                                        ? 200
+                                        : MediaQuery.of(context).size.width /
+                                            3.1,
                                     margin: EdgeInsets.only(
                                         bottom:
                                             MediaQuery.of(context).size.height *
@@ -186,7 +192,10 @@ class _DoctorProfileState extends State<DoctorProfile> {
                                   ),
                                   Container(
                                     height: 50,
-                                    width: 200,
+                                    width: Responsive.isDesktop(context)
+                                        ? 200
+                                        : MediaQuery.of(context).size.width /
+                                            3.1,
                                     margin: EdgeInsets.only(
                                         bottom:
                                             MediaQuery.of(context).size.height *
@@ -206,7 +215,10 @@ class _DoctorProfileState extends State<DoctorProfile> {
                                   ),
                                   Container(
                                     height: 50,
-                                    width: 200,
+                                    width: Responsive.isDesktop(context)
+                                        ? 200
+                                        : MediaQuery.of(context).size.width /
+                                            3.1,
                                     margin: EdgeInsets.only(
                                         bottom:
                                             MediaQuery.of(context).size.height *

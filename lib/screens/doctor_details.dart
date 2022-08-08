@@ -14,6 +14,8 @@ import '../constants.dart';
 import '../controller/datepickercontroller.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 
+import 'main/main_screen.dart';
+
 class BookingScreen extends StatefulWidget {
   final data;
   final docid;
@@ -40,27 +42,40 @@ class _BookingScreenState extends State<BookingScreen> {
     super.initState();
     finaltime = [];
     // PaymentService.init();
+    bool flag = false;
+    String check = widget.data['to'];
+    if (check.split(' ')[1] == 'AM') {
+      print(check);
+      setState(() {
+        flag = true;
+      });
+    }
     String month =
         '${DateTime.now().month < 10 ? '0${DateTime.now().month}' : DateTime.now().month}';
-    String day =
+    String to_day = flag == false
+        ? '${DateTime.now().day < 10 ? '0${DateTime.now().day}' : DateTime.now().day}'
+        : '${DateTime.now().day + 1 < 10 ? '0${DateTime.now().day + 1}' : DateTime.now().day + 1}';
+    String from_day =
         '${DateTime.now().day < 10 ? '0${DateTime.now().day}' : DateTime.now().day}';
     DateTime to1 = DateFormat.jm().parse(widget.data['to']);
     DateTime from1 = DateFormat.jm().parse(widget.data['from']);
     final to2 = DateFormat("HH:mm").format(to1);
     final from2 = DateFormat("HH:mm").format(from1);
-    to = DateTime.parse('${DateTime.now().year}-$month-$day $to2:04Z');
-    from = DateTime.parse('${DateTime.now().year}-$month-$day $from2:04Z');
+    to = DateTime.parse('${DateTime.now().year}-$month-$to_day $to2:04Z');
+    from = DateTime.parse('${DateTime.now().year}-$month-$from_day $from2:04Z');
     DateTime time = from!;
     finaltime.add(widget.data['from']);
+    print('Time $time');
     while (time.isBefore(to!)) {
-      time = time.add(Duration(hours: 1, minutes: 30));
-      print(time);
+      time = time.add(Duration(hours: 1));
+      print('time $time');
       DateTime tempDate =
           DateFormat("hh:mm").parse('${time.hour}:${time.minute}');
       var dateFormat = DateFormat("h:mm a");
       String datee = dateFormat.format(tempDate);
       finaltime.add(datee);
     }
+    print(finaltime);
   }
 
   Map<String, dynamic>? paymentIntentData;
@@ -229,7 +244,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                   backgroundColor: kPrimaryColor,
                                   textAlign: TextAlign.center,
                                   textStyle: TextStyle(color: Colors.white)),
-                              onSelectionChanged: (value) {
+                              onSelectionChanged: (value) async {
                                 String day = widget.data['days'];
                                 DateFormat formatter =
                                     DateFormat.yMMMMEEEEd('en_US');
@@ -257,15 +272,15 @@ class _BookingScreenState extends State<BookingScreen> {
                                 for (var i = 0;
                                     i < day.split(',').length;
                                     i++) {
-                                  if (day
-                                      .split(',')[i]
-                                      .contains(date.split(',')[0])) {
+                                  if (day.split(',')[i] ==
+                                      date.split(',')[0].substring(0, 3)) {
                                     print('found');
                                     Get.find<DatePickerController>()
                                         .updateColor(kPrimaryColor);
                                     setState(() {
                                       flag = true;
                                     });
+
                                     break;
                                   } else {
                                     Get.find<DatePickerController>()
@@ -325,89 +340,59 @@ class _BookingScreenState extends State<BookingScreen> {
                       ],
                     ),
                     InkWell(
-                      onTap: () async {
-                        int charge1 = 0;
-                        int charge2 = 0;
-                        DateTime date = DateFormat.jm().parse(selectedTime!);
-                        print(date);
-                        double cost = 349;
-                        double drivetime = 0;
-                        calculateCost().then((value) {
-                          print(value);
-                          if (date.hour > 22 && date.hour < 1) {
+                      onTap: () {
+                        determinePosition().then((_) {
+                          int charge1 = 0;
+                          int charge2 = 0;
+                          DateTime date = DateFormat.jm().parse(selectedTime!);
+                          print(date);
+                          double cost = 349;
+                          double drivetime = 0;
+                          calculateCost().then((value) {
+                            print(value);
+                            if (date.hour > 22 && date.hour < 1) {
+                              setState(() {
+                                charge2 = 25;
+                                cost = cost + 25;
+                              });
+                            } else if (date.hour > 1 && date.hour < 8) {
+                              setState(() {
+                                charge2 = 100;
+                                cost = cost + 100;
+                              });
+                            }
                             setState(() {
-                              charge2 = 25;
-                              cost = cost + 25;
+                              drivetime = (value / 0.58);
                             });
-                          } else if (date.hour > 1 && date.hour < 8) {
-                            setState(() {
-                              charge2 = 100;
-                              cost = cost + 100;
-                            });
-                          }
-                          setState(() {
-                            drivetime = (value / 0.58);
+                            if (drivetime > 16 && drivetime < 30) {
+                              setState(() {
+                                charge1 = 50;
+                                cost = cost + 50;
+                              });
+                            } else if (drivetime > 30 && drivetime < 60) {
+                              setState(() {
+                                charge1 = 100;
+                                cost = cost + 100;
+                              });
+                            } else if (drivetime > 60 && drivetime < 90) {
+                              setState(() {
+                                charge1 = 200;
+                                cost = cost + 200;
+                              });
+                            }
+                            drivetime > 90
+                                ? ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(
+                                            'Service Currently not available in your area')))
+                                : showDialog(
+                                    context: (context),
+                                    builder: (context) => showDetails(
+                                        cost.toString(),
+                                        charge1.toString(),
+                                        charge2.toString()));
                           });
-                          if (drivetime > 16 && drivetime < 30) {
-                            setState(() {
-                              charge1 = 50;
-                              cost = cost + 50;
-                            });
-                          } else if (drivetime > 30 && drivetime < 60) {
-                            setState(() {
-                              charge1 = 100;
-                              cost = cost + 100;
-                            });
-                          } else if (drivetime > 60 && drivetime < 90) {
-                            setState(() {
-                              charge1 = 200;
-                              cost = cost + 200;
-                            });
-                          } else if (drivetime > 90) {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                content: Text(
-                                    'Service Currently not available in your area')));
-                          }
-                          print('drivetime is $drivetime');
-                          print('price is $cost');
-                          showDialog(
-                              context: (context),
-                              builder: (context) => showDetails(cost.toString(),
-                                  charge1.toString(), charge2.toString()));
                         });
-                        // if(kIsWeb){
-                        //   Navigator.of(context).push(
-                        //       MaterialPageRoute(
-                        //           builder:
-                        //               (context) =>
-                        //               PaymentScreen()));
-                        // }
-                        // else{
-                        //   await makePayment();
-                        //
-                        // }
-                        // if (flag == false) {
-                        //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        //       content: Text('Please select available day')));
-                        // }
-                        // else {
-                        //   FirebaseFirestore.instance
-                        //       .collection("appointments")
-                        //       .doc()
-                        //       .set({
-                        //     "docname": widget.data['name'],
-                        //     "docid": widget.docid,
-                        //     "patientid": FirebaseAuth.instance.currentUser!.uid,
-                        //     "time": selectedTime!,
-                        //     "date": date,
-                        //     "status": 'pending'
-                        //   }).then((_) {
-                        //     Navigator.pop(context);
-                        //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        //         content:
-                        //         Text('Appointment Booked Successfully!')));
-                        //   });
-                        // }
                       },
                       child: Container(
                         width: double.infinity,
@@ -505,40 +490,7 @@ class _BookingScreenState extends State<BookingScreen> {
               height: MediaQuery.of(context).size.height * 0.05,
             ),
             Text(
-              'Bill',
-              style: TextStyle(color: kTitleTextColor),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.02,
-            ),
-            Text(
-              'Base Price: 349',
-              style: TextStyle(color: kTitleTextColor),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.02,
-            ),
-            Text(
-              'Drive cost: $charges1',
-              style: TextStyle(color: kTitleTextColor),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.02,
-            ),
-            Text(
-              'Extra Charges: $charges2',
-              style: TextStyle(color: kTitleTextColor),
-              textAlign: TextAlign.center,
-            ),
-            Divider(),
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.05,
-            ),
-            Text(
-              'Total Cost: $cost',
+              'Visit Cost: \$$cost.00',
               style: TextStyle(color: kTitleTextColor),
               textAlign: TextAlign.center,
             ),

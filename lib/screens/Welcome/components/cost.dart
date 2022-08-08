@@ -1,6 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:outlook/constants.dart';
 import 'package:outlook/responsive.dart';
+import 'package:outlook/screens/Welcome/home.dart';
 
 class Cost extends StatelessWidget {
   const Cost({Key? key}) : super(key: key);
@@ -77,66 +79,32 @@ class Cost extends StatelessWidget {
                                     : MediaQuery.of(context).size.width * 0.01,
                             right: 0),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Center(
-                              child: DataTable(
-                                  border: TableBorder.all(width: 1),
-                                  headingTextStyle: TextStyle(fontSize: 24),
-                                  columnSpacing:
-                                      MediaQuery.of(context).size.width * 0.4,
-                                  columns: [
-                                    DataColumn(
-                                        label: Center(child: Text('Pricing'))),
-                                    DataColumn(label: Text(''))
-                                  ],
-                                  rows: [
-                                    DataRow(cells: [
-                                      DataCell(Text('Base Price')),
-                                      DataCell(Text('\$349.00'))
-                                    ]),
-                                    DataRow(cells: [
-                                      DataCell(Text('')),
-                                      DataCell(Text(''))
-                                    ]),
-                                    DataRow(cells: [
-                                      DataCell(Text('Time Of Appointment')),
-                                      DataCell(Text(''))
-                                    ]),
-                                    DataRow(cells: [
-                                      DataCell(Text('10:01 PM to 12:59 AM')),
-                                      DataCell(Text('\$25.00'))
-                                    ]),
-                                    DataRow(cells: [
-                                      DataCell(Text('1:00 AM to 8:00 AM')),
-                                      DataCell(Text('\$100.00'))
-                                    ]),
-                                    DataRow(cells: [
-                                      DataCell(Text('')),
-                                      DataCell(Text(''))
-                                    ]),
-                                    DataRow(cells: [
-                                      DataCell(Text('Drive Time')),
-                                      DataCell(Text(''))
-                                    ]),
-                                    DataRow(cells: [
-                                      DataCell(Text('16 to 29 mins')),
-                                      DataCell(Text('\$50.00'))
-                                    ]),
-                                    DataRow(cells: [
-                                      DataCell(Text('30 to 59 mins')),
-                                      DataCell(Text('\$100.00'))
-                                    ]),
-                                    DataRow(cells: [
-                                      DataCell(Text('60 to 89 mins')),
-                                      DataCell(Text('\$200.00'))
-                                    ])
-                                  ]),
+                            Text(
+                              'Cost will be calculated according to the address and set an appointment to see cost. ',
+                              style: TextStyle(
+                                  fontSize: Responsive.isDesktop(context)
+                                      ? 24
+                                      : Responsive.isMobile(context)
+                                          ? 16
+                                          : 20),
+                              textAlign: TextAlign.left,
+                            ),
+                            Text(
+                              'Please return to home page and click Schedule Appointment.',
+                              style: TextStyle(
+                                  fontSize: Responsive.isDesktop(context)
+                                      ? 24
+                                      : Responsive.isMobile(context)
+                                          ? 16
+                                          : 20),
+                              textAlign: TextAlign.left,
                             ),
                           ],
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),

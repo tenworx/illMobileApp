@@ -15,10 +15,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 
 class ListOfEmails extends StatefulWidget {
   // Press "Command + ."
-  ListOfEmails({
-    required this.role,
-    Key? key,
-  }) : super(key: key);
+  ListOfEmails({required this.role, Key? key}) : super(key: key);
   String role;
   @override
   _ListOfEmailsState createState() => _ListOfEmailsState();
@@ -99,6 +96,7 @@ class _ListOfEmailsState extends State<ListOfEmails> {
                       return ListView.builder(
                         itemCount: snapshot.data!.docs.length,
                         itemBuilder: (context, index) => EmailCard(
+                          data: snapshot.data!.docs[index],
                           isActive:
                               Responsive.isMobile(context) ? false : index == 0,
                           email: Email(

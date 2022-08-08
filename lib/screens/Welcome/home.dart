@@ -222,8 +222,8 @@ class _HomePageState extends State<HomePage>
     return StreamBuilder<QuerySnapshot>(
       stream: doctorStream,
       builder: (context, snapshot) {
-        for (var i = 0; i < snapshot.data!.docs.length; i++) {
-          if (names.length == 0) {
+        if (names.length == 0) {
+          for (var i = 0; i < snapshot.data!.docs.length; i++) {
             names.add(snapshot.data!.docs[i]['name']);
             docid.add(snapshot.data!.docs[i].id);
           }

@@ -26,7 +26,9 @@ class NavScreen extends StatelessWidget {
               if (snapshot.hasData) {
                 if (snapshot.data!.docs.length > 0) {
                   if (snapshot.data!.docs[0]["role"] == role) {
-                    return MainScreen(role: role);
+                    return MainScreen(
+                      role: role,
+                    );
                   } else {
                     throw Exception();
                   }

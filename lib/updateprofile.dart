@@ -155,7 +155,7 @@ class _EditProfileState extends State<EditProfile> {
                                     });
                             });
                           } else {
-                            updateData(widget.role).then((_) {
+                            updateData(widget.role).whenComplete(() {
                               Navigator.of(context).pushReplacement(
                                   MaterialPageRoute(
                                       builder: (context) =>

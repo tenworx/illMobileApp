@@ -34,10 +34,7 @@ List<DayInWeek> _days = [
   DayInWeek(
     "Mon",
   ),
-  DayInWeek(
-      "Tue",
-      isSelected: true
-  ),
+  DayInWeek("Tue", isSelected: true),
   DayInWeek(
     "Wed",
   ),
@@ -52,7 +49,7 @@ List<DayInWeek> _days = [
   ),
 ];
 
-String? _selectedLocation;
+String _selectedLocation = 'English';
 
 class _AddDoctorState extends State<AddDoctor> {
   @override
@@ -61,11 +58,11 @@ class _AddDoctorState extends State<AddDoctor> {
       body: SingleChildScrollView(
         child: Center(
           child: Container(
-            height: 1100,
+            height: 1200,
             width: 400,
             child: Column(
               children: [
-                SizedBox(height: 20),
+                SizedBox(height: 50),
                 Center(
                   child: Text(
                     'Doctor Registeration',
@@ -113,13 +110,32 @@ class _AddDoctorState extends State<AddDoctor> {
                   flag: true,
                 ),
                 SizedBox(height: 20),
-                CustomTextField(
-                  hintText: 'Experience',
-                  label: 'experience',
-                  controller: experience,
-                  data: Icons.input,
-                  isObsecure: false,
-                  flag: true,
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                  ),
+                  padding: EdgeInsets.all(8.0),
+                  margin: EdgeInsets.all(10.0),
+                  child: TextFormField(
+                      maxLength: 2,
+                      controller: experience,
+                      obscureText: false,
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        label: Text('Experience'),
+                        prefixIcon: Icon(
+                          Icons.timelapse,
+                          color: kTitleTextColor,
+                        ),
+                        focusColor: kPrimaryColor,
+                        hintText: 'Contact',
+                      ),
+                      keyboardType: TextInputType.number,
+                      inputFormatters: <TextInputFormatter>[
+                        FilteringTextInputFormatter.allow(
+                            RegExp("[0-9a-zA-Z]")),
+                      ]),
                 ),
                 SizedBox(height: 20),
                 CustomTextField(
@@ -230,7 +246,7 @@ class _AddDoctorState extends State<AddDoctor> {
                         hint: _selectedLocation == null
                             ? Text(data[0])
                             : Text(
-                                _selectedLocation!,
+                                _selectedLocation,
                                 style: TextStyle(
                                   color: kTextColor,
                                 ),
@@ -277,37 +293,7 @@ class _AddDoctorState extends State<AddDoctor> {
                         for (var i = 0; i < days.length; i++) {
                           day = '$day,${days[i]}';
                         }
-                        vaildation();
-                        database.RegisterDoc(
-                                localmage,
-                                name.text,
-                                category.text,
-                                experience.text,
-                                contact.text,
-                                day,
-                                fromTime!,
-                                toTime!,
-                                _selectedLocation!,
-                                shortinfo.text,
-                                desc.text)
-                            .then((_) {
-                          Navigator.of(context)
-                              .push(MaterialPageRoute(
-                                  builder: (context) => MainScreen(
-                                        role: 'admin',
-                                      )))
-                              .then((_) {
-                            Fluttertoast.showToast(
-                                msg:
-                                    "Registered Successfully now you can login",
-                                toastLength: Toast.LENGTH_LONG,
-                                gravity: ToastGravity.BOTTOM,
-                                timeInSecForIosWeb: 3,
-                                backgroundColor: kPrimaryColor,
-                                textColor: Colors.white,
-                                fontSize: 16.0);
-                          });
-                        });
+                        vaildation(day);
                       },
                     ),
                   ),
@@ -377,7 +363,7 @@ class _AddDoctorState extends State<AddDoctor> {
       r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
   static RegExp regExp = new RegExp(p);
 
-  void vaildation() {
+  void vaildation(var day) {
     if (name.text.isEmpty &&
         category.text.isEmpty &&
         experience.text.isEmpty &&
@@ -426,21 +412,54 @@ class _AddDoctorState extends State<AddDoctor> {
           content: Text("Description Is Empty"),
         ),
       );
-    } else if (localmage.isEmpty) {
+    } else if (localmage == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Please Select an image"),
         ),
       );
+    } else if (fromTime == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Please Select From-Time"),
+        ),
+      );
+    } else if (fromTime == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Please Select To-Time"),
+        ),
+      );
     } else {
-      Fluttertoast.showToast(
-          msg: "Registeration Successful",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 3,
-          backgroundColor: kPrimaryColor,
-          textColor: Colors.white,
-          fontSize: 16.0);
+      database.RegisterDoc(
+              localmage,
+              name.text,
+              category.text,
+              '${experience.text} Years',
+              contact.text,
+              day,
+              fromTime!,
+              toTime!,
+              _selectedLocation,
+              shortinfo.text,
+              desc.text)
+          .then((_) {
+        Navigator.of(context)
+            .push(MaterialPageRoute(
+                builder: (context) => MainScreen(
+                      role: 'admin',
+                    )))
+            .then((_) {
+          Fluttertoast.showToast(
+              msg: "Registered Successfully",
+              toastLength: Toast.LENGTH_LONG,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 3,
+              backgroundColor: kPrimaryColor,
+              textColor: Colors.white,
+              fontSize: 16.0);
+        });
+      });
     }
   }
 }

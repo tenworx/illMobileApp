@@ -25,12 +25,12 @@ class AboutUs extends StatelessWidget {
                     width: double.infinity,
                     fit: BoxFit.fill,
                   ),
-                  Center(
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                          top: Responsive.isMobile(context)
-                              ? height * 0.2
-                              : height * 0.26),
+                  Padding(
+                    padding: EdgeInsets.only(
+                        top: Responsive.isMobile(context)
+                            ? height * 0.2
+                            : height * 0.26),
+                    child: Center(
                       child: Text(
                         'About Us',
                         style: TextStyle(
@@ -52,22 +52,21 @@ class AboutUs extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Center(
-                        child: Container(
-                          child: Text(
-                            'Who are we?',
-                            style: TextStyle(
-                              fontSize: 30,
-                            ),
+                      SizedBox(height: 20),
+                      Container(
+                        child: Text(
+                          'Who Are We?',
+                          style: TextStyle(
+                            fontSize: 30,
                           ),
-                          decoration: BoxDecoration(
-                              border: Border(
-                                  bottom:
-                                      BorderSide(color: Colors.red, width: 5))),
                         ),
+                        decoration: BoxDecoration(
+                            border: Border(
+                                bottom:
+                                    BorderSide(color: Colors.red, width: 5))),
                       ),
                       SizedBox(
-                        height: height * 0.1,
+                        height: height * 0.05,
                       ),
                       Padding(
                         padding: EdgeInsets.only(
@@ -82,7 +81,7 @@ class AboutUs extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                                'IllMobiles’s mission is to bring exceptional care directly to young people, right where they are.',
+                                'IllMobiles’s mission is to bring exceptional care directly to people, right where they are.',
                                 style: TextStyle(
                                     fontSize: Responsive.isDesktop(context)
                                         ? 24
@@ -91,7 +90,7 @@ class AboutUs extends StatelessWidget {
                                             : 18),
                                 textAlign: TextAlign.left),
                             Text(
-                                'Our expertly trained providers help young people heal in any setting:  home, airport, boat, or car.',
+                                'Our expertly trained providers help people heal in any setting:  home, airport, boat, or car.',
                                 style: TextStyle(
                                     fontSize: Responsive.isDesktop(context)
                                         ? 24
@@ -109,15 +108,7 @@ class AboutUs extends StatelessWidget {
                                             : 20),
                                 textAlign: TextAlign.left),
                             Text(
-                                'We serve patients from West Palm Beach to Miami, including Delray Beach, Boca Raton, Ft. Lauderdale,',
-                                style: TextStyle(
-                                    fontSize: Responsive.isDesktop(context)
-                                        ? 24
-                                        : Responsive.isMobile(context)
-                                            ? 16
-                                            : 20),
-                                textAlign: TextAlign.left),
-                            Text(' and Hollywood.',
+                                'We serve patients from West Palm Beach to Miami, including Delray Beach, Boca Raton, Ft. Lauderdale,and Hollywood.',
                                 style: TextStyle(
                                     fontSize: Responsive.isDesktop(context)
                                         ? 24
