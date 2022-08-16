@@ -1,5 +1,5 @@
 var STRIPE_KEY =
-    "pk_live_51LOQ7kEdiOAxOqVZZy2hpvIfRJ6ky38VvA7Ad7ATfNYeZMc5wDCBOYm0Tkgop3ylWtKMMmxUrfoAjg9ImpjI7Wap00sQpq1naz";
+    "";
 
 var STRIPE_SECRET =
-    "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";
+    "";
